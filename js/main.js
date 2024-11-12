@@ -32,7 +32,7 @@ const obj2 = { age: 11 };
 const sumObj = joinObjInfo(obj1, obj2);
 console.log(sumObj);
 function joinObjInfo(obj1, obj2) {
-    return {name: obj1.name, age: obj2.age};
+    return {...obj1, ...obj2};
 }
 
 // Задание 4
@@ -40,6 +40,7 @@ const arr4 = [1,2,3,4];
 
 const min = getMin(arr4);
 console.log(min);
+
 function getMin(arr) {
     return Math.min(...arr);
 }
@@ -47,6 +48,7 @@ function getMin(arr) {
 // Задание 5
 const odd = getOdd(arr4);
 console.log(odd);
+
 function getOdd(arr) {
     return arr.reduce((result, num) => {
         if (num % 2 !== 0) {
