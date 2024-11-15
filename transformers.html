@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Simulation</title>
+    <style>
+        .fighter {
+            margin-bottom: 20px;
+        }
+        .health-bar {
+            width: 100%;
+            background-color: #ccc;
+        }
+        .health {
+            height: 20px;
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+<div id="battle-log"></div>
+
+<div class="fighter">
+    <h2>Optimus Prime</h2>
+    <div class="health-bar">
+        <div id="optimus-health" class="health"></div>
+    </div>
+</div>
+
+<div class="fighter">
+    <h2>Megatron</h2>
+    <div class="health-bar">
+        <div id="megatron-health" class="health"></div>
+    </div>
+</div>
+
+<script src="js/oop.js"></script>
+</body>
+</html>
