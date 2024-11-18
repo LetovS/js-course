@@ -103,7 +103,39 @@ function parallelPromisesWithDelay(){
 async function findByPlanetName(){
     const response = await fetch('https://swapi.dev/api/planets')
         .then(response => response.json())
+        .then(data => data.results.find(item => item.name === 'Tatooine'));
     console.log(response);
 }
 
-findByPlanetName();
+//findByPlanetName();
+
+// 7 first transport anakin
+async function fetchAnakinTransport() {
+    const response = await fetch('https://swapi.dev/api/people/?search=Anakin');
+    const data = await response.json();
+    const anakin = data.results[0];
+
+    if (anakin) {
+        const transport = await fetch(anakin.vehicles[0]).then(res => res.json());
+        console.log("Первый транспорт Анакина:", transport.name);
+    } else {
+        console.log("Анакин не найден");
+    }
+}
+
+//fetchAnakinTransport();
+
+// 8
+
+async function echoServer() {
+    const response = await fetch('http://localhost:3009/echo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: "Привет сервис, я жду от тебя ответа" }),
+    });
+
+    const data = await response.json();
+    console.log("Ответ от сервера:", data);
+}
+
+echoServer();
