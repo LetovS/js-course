@@ -1,11 +1,36 @@
 class CommonPlanet{
-    constructor(name, diameter, population, gravity, terrain, climate) {
+    constructor(id, name, diameter, population, gravity, terrain, climate) {
+        this.id = id;
+        this.name = name;
         this.diameter = diameter;
         this.population = population;
         this.gravity = gravity;
         this.terrain = terrain;
         this.climate = climate;
+    }
+}
+
+class FilmAboutPlanet{
+    constructor(episodeId, title, releaseDate) {
+        this.episodeId = episodeId;
+        this.title = title;
+        this.releaseDate = releaseDate;
+    }
+}
+
+class Person{
+    constructor(name, gender, birthDay){
         this.name = name;
+        this.gender = gender;
+        this.birthDay = birthDay;
+    }
+}
+
+class DetailPlanet extends CommonPlanet {
+    constructor(name, diameter, population, gravity, terrain, climate, films, persons) {
+        super(name, diameter, population, gravity, terrain, climate);
+        this.films = films;
+        this.persons = persons;
     }
 }
 
@@ -13,24 +38,88 @@ document.addEventListener("DOMContentLoaded", async () => {
     // получить данные по планетам
 
     const planets = await getPlanets()
-    console.log(planets);
+    console.log(planets)
+    renderPlanetCards(planets);
+
+    const films = await getFilmsById(1);
+
+    const persons = await getPersonsById(1);
+
+
+    function renderPlanetCards(planetsList){
+        const planetsAsString = planetsList.map(planet =>
+`<div class="card-item">
+        <h5><strong>Планета:</strong> ${planet.name}</h5>
+        <p class="card-item__diameter"><strong>Diameter:</strong> ${planet.diameter}</p>
+        <p class="card-item__population"><strong>Population:</strong> ${planet.population}</p>
+        <p class="card-item__gravity"><strong>Gravity:</strong> ${planet.gravity}</p>
+        <p class="card-item__terrain"><strong>Terrain:</strong> ${planet.terrain}</p>
+        <p class="card-item__climaten"><strong>Climate:</strong> ${planet.climate}</p>
+        <a href="#" class="btn btn-primary" data-id="${planet.id}" data-bs-toggle="modal" data-bs-target="#exampleModal">Подробнее</a>
+</div>`).join(' ');
+
+        const planetCardsEl = document.querySelector('.cards');
+
+        planetCardsEl.innerHTML = planetsAsString;
+    }
 
     async function getPlanets(){
         return fetch("https://swapi.dev/api/planets")
             .then(res => res.json())
             .then(data => {
-                return data.results.map(item => new CommonPlanet(item.name,
+                return data.results.map(item => new CommonPlanet(
+                    item.url.split('/').slice(-2, -1)[0],
+                    item.name,
                     item.diameter,
                     item.population,
                     item.gravity,
                     item.terrain,
                     item.climate))
             })
-            .then(error => console.log(error));
+            .catch(error => console.log(error));
     }
 
-    async  function getDetailById(planetId){
+    async function getFilmsById(planetId) {
+        try {
+            // Получаем данные планеты по ID
+            const planetResponse = await fetch(`https://swapi.dev/api/planets/${planetId}`);
+            const planetData = await planetResponse.json();
 
+            // Для каждого URL фильма делаем запрос
+            const filmPromises = planetData.films.map(async (filmUrl) => {
+                const filmData = await fetch(filmUrl).then(filmUrl => filmUrl.json());
+
+                return new FilmAboutPlanet(filmData.episode_id, filmData.title, filmData.release_date);
+            });
+
+            // Ожидаем выполнения всех запросов и возвращаем массив фильмов
+            return await Promise.all(filmPromises);
+        } catch (error) {
+            console.error("Error fetching films for planet:", error);
+            return [];
+        }
     }
+
+    async function getPersonsById(planetId) {
+        try {
+            // Получаем данные планеты по ID
+            const planetResponse = await fetch(`https://swapi.dev/api/planets/${planetId}`);
+            const planetData = await planetResponse.json();
+
+            // Для каждого URL персонажа делаем запрос
+            const personPromises = planetData.residents.map(async (residentUrl) => {
+                const personData = await fetch(residentUrl)
+                    .then(residentUrl => residentUrl.json());
+                return new Person(personData.name, personData.gender, personData.birth_year);
+            });
+
+            // Ожидаем выполнения всех запросов и возвращаем массив персонажей
+            return await Promise.all(personPromises);
+        } catch (error) {
+            console.error("Error fetching persons for planet:", error);
+            return [];
+        }
+    }
+
 
 })

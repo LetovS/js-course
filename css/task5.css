@@ -10,13 +10,36 @@ html, body{
 }
 .cards{
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
+    align-items: stretch;
 }
 .card-item{
+    min-height: 300px;
+    border: 1px solid lightgray;
+    padding: 1rem;
+    border-radius: 1rem;
     width: 300px;
     margin: 5px;
     display: flex;
-    justify-content: stretch;
+    flex-direction: column;
+    justify-content: space-around;
+    box-shadow: 0 1px 5px rgba(0,0,0, .2);
+    transition: all .3s ease-in-out;
+}
+
+.card-item:hover{
+    transform: scale(1.1);
+    z-index: 1;
+    background: #fff;
+}
+
+.card-item__diameter::after{
+    content: " км";
+}
+
+.card-item__population::after{
+    content: " чел.";
 }
 
 .pagination-area{
