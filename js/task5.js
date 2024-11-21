@@ -129,13 +129,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             .forEach(btn =>
                 btn.addEventListener('click', async (event) => {
                     event.preventDefault()
-                    const id = +btn.getAttribute('data-id');
 
-                    const films = await getFilmsById(id);
+                    const planetId = +btn.getAttribute('data-id');
+
+                    //todo get data about parent card-item
+
+                    const films = await getFilmsById(planetId);
                     console.log(films);
 
-                    const persons = await getPersonsById(id);
+                    const persons = await getPersonsById(planetId);
                     console.log(persons);
+
+                    //todo create html total info about planet, films about this plane and persons
 
                     // собрать форму
                     const htmlForm = `
