@@ -10,17 +10,15 @@ function getList() {
         }, 2000);
     });
 }
-
-// 2. Скрипт, получающий данные
-// getList()
-//     .then(tasks => {
-//         tasks.forEach(task => {
-//             console.log(`${task.title} - ${task.isDone ? "Выполнено" : "Не выполнено"}`);
-//         });
-//     })
-//     .catch(error => {
-//         console.error(`Произошла ошибка: ${error}`);
-//     });
+getList()
+    .then(tasks => {
+        tasks.forEach(task => {
+            console.log(`${task.title} - ${task.isDone ? "Выполнено" : "Не выполнено"}`);
+        });
+    })
+    .catch(error => {
+        console.error(`Произошла ошибка: ${error}`);
+    });
 
 // 2. chain call
 function chainCalls(){
@@ -45,7 +43,7 @@ function chainCalls(){
         })
 }
 
-//chainCalls();
+chainCalls();
 
 // 3 parallel promis
 
@@ -66,7 +64,7 @@ function parallelPromises(){
         .then(resolve => console.log(resolve.join(" ")));
 }
 
-//parallelPromises();
+parallelPromises();
 
 
 // 4 delay pending -> redolve after 
@@ -75,7 +73,7 @@ function delay (delay){
     return new Promise(resolve => setTimeout(resolve, delay));
 }
 
-//delay(2000).then(resolve => console.log('Это сообщение вывелось через 2 секунды'))
+delay(2000).then(resolve => console.log('Это сообщение вывелось через 2 секунды'))
 
 // 5 parallel promis with delay
 
@@ -85,7 +83,7 @@ function parallelPromisesWithDelay(){
         "использую": 800,
         "вызов": 1200,
         "обещаний": 700,
-        "параллельно": 500,
+        "параллельно вариант с delay": 500,
     };
 
     const promises = Object.entries(tasks).map(([word, delayValue]) => 
@@ -96,7 +94,7 @@ function parallelPromisesWithDelay(){
 }
 
 
-//parallelPromisesWithDelay();
+parallelPromisesWithDelay();
 
 // 6 api find planet
 
@@ -107,7 +105,7 @@ async function findByPlanetName(){
     console.log(response);
 }
 
-//findByPlanetName();
+findByPlanetName();
 
 // 7 first transport anakin
 async function fetchAnakinTransport() {
@@ -123,7 +121,7 @@ async function fetchAnakinTransport() {
     }
 }
 
-//fetchAnakinTransport();
+fetchAnakinTransport();
 
 // 8
 
