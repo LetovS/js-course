@@ -41,6 +41,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log(planets)
     renderPlanetCards(planets);
 
+    addButtonEvents();
+
     const films = await getFilmsById(1);
 
     const persons = await getPersonsById(1);
@@ -121,5 +123,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function addButtonEvents(){
+        document
+            .querySelectorAll('.cards .btn')
+            .forEach(btn =>
+                btn.addEventListener('click', async (event) => {
+                    event.preventDefault()
+                    const id = +btn.getAttribute('data-id');
 
+                    const films = await getFilmsById(id);
+                    console.log(films);
+
+                    const persons = await getPersonsById(id);
+                    console.log(persons);
+
+                    // собрать форму
+                    const htmlForm = `
+<form action=""  method="post">
+<h1>Тут пока ничего нет. Но скоро будет.</h1>>
+<div class="modal-form__item">
+    <button type="submit" class="btn btn-primary modal-form__label">Сохранить</button>
+    <button type="reset" class="btn btn-danger">Очистить</button>
+</div>
+</form>
+                    `;
+                    // добавить в
+                    console.log(htmlForm);
+                    const modalBodyEl = document.querySelector('.modal-body');
+                    modalBodyEl.innerHTML = htmlForm;
+                })
+            )
+    }
 })
