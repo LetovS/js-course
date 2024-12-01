@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function renderPlanetCards(planetsList){
         const planetsAsString = planetsList.map(planet =>
-`<div class="card-item">
+`<div class="card-item" id="">
         <h5><strong>Планета:</strong> ${planet.name}</h5>
         <p class="card-item__diameter"><strong>Diameter:</strong> ${planet.diameter}</p>
         <p class="card-item__population"><strong>Population:</strong> ${planet.population}</p>
@@ -129,23 +129,43 @@ document.addEventListener("DOMContentLoaded", async () => {
             .forEach(btn =>
                 btn.addEventListener('click', async (event) => {
                     event.preventDefault()
-
+                    const cardItem = btn.closest('.card-item');
                     const planetId = +btn.getAttribute('data-id');
-
                     //todo get data about parent card-item
 
                     const films = await getFilmsById(planetId);
-                    console.log(films);
 
                     const persons = await getPersonsById(planetId);
-                    console.log(persons);
 
                     //todo create html total info about planet, films about this plane and persons
 
+                    // Формируем HTML для фильмов
+                    const filmsHtml = films.map(film => `
+                    <li>
+                        <strong>${film.title}</strong> 
+                        (Эпизод: ${film.episodeId}, Дата выхода: ${film.releaseDate})
+                    </li>
+                    `).join('');
+                    // Формируем HTML для персонажей
+                    const personsHtml = persons.map(person => `
+                    <li>
+                        <strong>${person.name}</strong> 
+                        (Пол: ${person.gender}, Дата рождения: ${person.birthDay})
+                    </li>
+                    
+                `).join('');
                     // собрать форму
                     const htmlForm = `
 <form action=""  method="post">
-<h1>Тут пока ничего нет. Но скоро будет.</h1>>
+${cardItem.innerHTML.split('<a').slice(-2, -1)[0]}
+<ul>
+    <h3>Films</h3>
+    ${filmsHtml}
+</ul>
+<ul>
+        <h3>Персонажи</h3>
+        ${personsHtml}
+    </ul>
 <div class="modal-form__item">
     <button type="submit" class="btn btn-primary modal-form__label">Сохранить</button>
     <button type="reset" class="btn btn-danger">Очистить</button>
@@ -153,7 +173,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 </form>
                     `;
                     // добавить в
-                    console.log(htmlForm);
                     const modalBodyEl = document.querySelector('.modal-body');
                     modalBodyEl.innerHTML = htmlForm;
                 })
