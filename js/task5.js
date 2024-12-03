@@ -28,16 +28,13 @@ class Person {
 }
 document.addEventListener("DOMContentLoaded", async () => {
     // получить данные по планетам
-
     const planets = await getPlanets()
-    console.log(planets)
+
     renderPlanetCards(planets);
 
     addButtonEvents();
 
     setPagination(1, 25, 30);
-
-
 
     function renderPlanetCards(planetsList){
         const planetsAsString = planetsList.map(planet =>
@@ -209,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ${middle}
             <li class="page-item user-page-item"><a href="#" class="page-link">Вперед</a></li>
         `;
-        setEventsPagination(pageSize, paginationEl);
+        //setEventsPagination(pageSize, paginationEl);
     }
 
     function  setEventsPagination(pageSizeOld, pagination){
@@ -259,5 +256,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             setPagination(currentPage, pageSize, total);
         })
     }
-
 })
