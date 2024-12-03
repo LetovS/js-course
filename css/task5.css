@@ -49,7 +49,7 @@ html, body{
     margin-top: 1.5rem;
 }
 .pagination-page-size{
-    padding: .5rem .5rem;
+    padding: 0 1.5rem;
     align-self: stretch;
 }
 .current-page-active{
