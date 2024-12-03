@@ -18,22 +18,14 @@ class FilmAboutPlanet{
     }
 }
 
-class Person{
-    constructor(name, gender, birthDay){
+class Person {
+    constructor(name, gender, birthDay, homeworldName) {
         this.name = name;
         this.gender = gender;
         this.birthDay = birthDay;
+        this.homeworldName = homeworldName;
     }
 }
-
-class DetailPlanet extends CommonPlanet {
-    constructor(name, diameter, population, gravity, terrain, climate, films, persons) {
-        super(name, diameter, population, gravity, terrain, climate);
-        this.films = films;
-        this.persons = persons;
-    }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
     // получить данные по планетам
 
@@ -43,9 +35,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     addButtonEvents();
 
-    const films = await getFilmsById(1);
+    setPagination(1, 25, 30);
 
-    const persons = await getPersonsById(1);
 
 
     function renderPlanetCards(planetsList){
@@ -110,9 +101,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Для каждого URL персонажа делаем запрос
             const personPromises = planetData.residents.map(async (residentUrl) => {
-                const personData = await fetch(residentUrl)
-                    .then(residentUrl => residentUrl.json());
-                return new Person(personData.name, personData.gender, personData.birth_year);
+                const personResponse = await fetch(residentUrl);
+                const personData = await personResponse.json();
+
+                // Получаем имя планеты из URL homeworld
+                const homeworldResponse = await fetch(personData.homeworld);
+                const homeworldData = await homeworldResponse.json();
+                const homeworldName = homeworldData.name;
+
+                // Создаем объект Person
+                return new Person(
+                    personData.name,
+                    personData.gender,
+                    personData.birth_year,
+                    homeworldName
+                );
             });
 
             // Ожидаем выполнения всех запросов и возвращаем массив персонажей
@@ -126,56 +129,135 @@ document.addEventListener("DOMContentLoaded", async () => {
     function addButtonEvents(){
         document
             .querySelectorAll('.cards .btn')
-            .forEach(btn =>
-                btn.addEventListener('click', async (event) => {
-                    event.preventDefault()
-                    const cardItem = btn.closest('.card-item');
-                    const planetId = +btn.getAttribute('data-id');
-                    //todo get data about parent card-item
+            .forEach(btn => {
+                    btn.addEventListener('click', async (event) => {
+                        event.preventDefault()
+                        const cardItem = btn.closest('.card-item');
+                        const planetId = +btn.getAttribute('data-id');
+                        //todo get data about parent card-item
 
-                    const films = await getFilmsById(planetId);
+                        const films = await getFilmsById(planetId);
 
-                    const persons = await getPersonsById(planetId);
+                        const persons = await getPersonsById(planetId);
 
-                    //todo create html total info about planet, films about this plane and persons
+                        //todo create html total info about planet, films about this plane and persons
 
-                    // Формируем HTML для фильмов
-                    const filmsHtml = films.map(film => `
-                    <li>
-                        <strong>${film.title}</strong> 
-                        (Эпизод: ${film.episodeId}, Дата выхода: ${film.releaseDate})
-                    </li>
-                    `).join('');
-                    // Формируем HTML для персонажей
-                    const personsHtml = persons.map(person => `
-                    <li>
-                        <strong>${person.name}</strong> 
-                        (Пол: ${person.gender}, Дата рождения: ${person.birthDay})
-                    </li>
-                    
-                `).join('');
-                    // собрать форму
-                    const htmlForm = `
-<form action=""  method="post">
-${cardItem.innerHTML.split('<a').slice(-2, -1)[0]}
-<ul>
-    <h3>Films</h3>
-    ${filmsHtml}
-</ul>
-<ul>
-        <h3>Персонажи</h3>
-        ${personsHtml}
-    </ul>
-<div class="modal-form__item">
-    <button type="submit" class="btn btn-primary modal-form__label">Сохранить</button>
-    <button type="reset" class="btn btn-danger">Очистить</button>
-</div>
-</form>
-                    `;
-                    // добавить в
-                    const modalBodyEl = document.querySelector('.modal-body');
-                    modalBodyEl.innerHTML = htmlForm;
-                })
+                        let filmsTotal = ``;
+                        if (films.length > 0) {
+                            // Формируем HTML для фильмов
+                            const filmsHtml = films.map(film => `
+                            <li>
+                            <strong>${film.title}</strong> 
+                            (Эпизод: ${film.episodeId}, Дата выхода: ${film.releaseDate})
+                            </li>
+                            `).join('');
+                            filmsTotal = `
+                            <ul>
+                                <h3>Films</h3>
+                                ${filmsHtml}
+                            </ul>`;
+                        }
+
+                        let personsTotal = ``;
+                        if (persons.length > 0) {// Формируем HTML для персонажей
+                            const personsHtml = persons.map(person => `
+                                <li>
+                                    <strong>${person.name}</strong> 
+                                    (Пол: ${person.gender}, Дата рождения: ${person.birthDay}, Родная планета: ${person.homeworldName})
+                                </li>`).join('');
+                            personsTotal = `
+                            <ul>
+                                <h3>Персонажи</h3>
+                                ${personsHtml}
+                            </ul>`
+                        }
+                        // собрать форму
+                        const htmlForm = `
+    <form action=""  method="post">
+    ${cardItem.innerHTML.split('<a').slice(-2, -1)[0]}
+    ${filmsTotal}
+    ${personsTotal}
+    <div class="modal-form__item">
+        <button type="submit" class="btn btn-primary modal-form__label">Сохранить</button>
+        <button type="reset" class="btn btn-danger">Очистить</button>
+    </div>
+    </form>
+                        `;
+                        // добавить в
+                        const modalBodyEl = document.querySelector('.modal-body');
+                        modalBodyEl.innerHTML = htmlForm;
+                    });
+                }
             )
     }
+
+    function setPagination(currentPage, pageSize, total) {
+        const paginationEl = document.querySelector('.pagination');
+
+        let middle = ``
+
+        for (let i = 1; i <= Math.round(total/pageSize); i++) {  // округляем до большего числа
+            if (i === currentPage)
+                middle += `<li class="page-item user-page-item"><a href="#" data-page="${i}" class="page-link current-page-active">${i}</a></li>` + ' ';
+            else{
+                middle += `<li class="page-item user-page-item"><a href="#" data-page="${i}" class="page-link">${i}</a></li>` + ' ';
+            }
+        }
+
+        paginationEl.innerHTML = `
+            <li class="page-item user-page-item"><a href="#" class="page-link">Назад</a></li>
+            ${middle}
+            <li class="page-item user-page-item"><a href="#" class="page-link">Вперед</a></li>
+        `;
+        setEventsPagination(pageSize, paginationEl);
+    }
+
+    function  setEventsPagination(pageSizeOld, pagination){
+
+        pagination.querySelectorAll('a').forEach((item) => {
+            item.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (e.target.classList.contains('current-page-active')){
+                    return;
+                }
+
+                pagination.querySelectorAll('.page-link').forEach((items) => {
+                    items.classList.remove('current-page-active');
+                })
+
+                item.classList.add('current-page-active');
+
+                const currentPage = +item.getAttribute('data-page');
+                const {pageSize, total, entities: posts} = await getPosts(currentPage, pageSizeOld);
+
+                renderPosts(posts);
+
+                addButtonEvents();
+
+                setPagination(currentPage, pageSize, total);
+            })
+        })
+    }
+
+    function handlePageSize(){
+        const selectEl = document.querySelector('.pagination-page-size select');
+        selectEl.addEventListener('change', async (event) => {
+
+            const currentPage = +document.querySelector('.current-page-active').innerText;
+            let pageSizeOld = 0;
+            document.querySelectorAll('.form-select option').forEach(item => {
+                if (item.selected) {
+                    pageSizeOld = item.value
+                }
+            });
+            const {pageSize, total, entities: posts} = await getPosts(currentPage, pageSizeOld);
+
+            renderPosts(posts);
+
+            addButtonEvents();
+
+            setPagination(currentPage, pageSize, total);
+        })
+    }
+
 })
